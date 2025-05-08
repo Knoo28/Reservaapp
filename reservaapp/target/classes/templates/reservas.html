@@ -1,59 +1,92 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <title>Reservas</title>
-    <!-- Enlace al CDN de Bootstrap 5.3.5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
 </head>
-
 <body>
-    <div class="container mt-5">
-        <h1 class="text-center mb-4">Lista de Reservas</h1>
-        
-        <!-- Tabla de reservas -->
-        <table class="table table-bordered table-striped">
-            <thead class="thead-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Cliente</th>
-                    <th>Personas</th>
-                    <th>Fecha y Hora</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="reserva : ${reservas}">
-                    <td th:text="${reserva.id}"></td>
-                    <td th:text="${reserva.nombreCliente}"></td>
-                    <td th:text="${reserva.cantidadPersonas}"></td>
-                    <td th:text="${reserva.fechaHora}"></td>
-                </tr>
-            </tbody>
-        </table>
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Reservas</h2>
+    <!-- Botón Agregar reserva -->
+    <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#modalAgregar">Agregar reserva</button>
+    
+    <!-- Tabla de Reservas -->
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>Nombre</th>
+                <th>Personas</th>
+                <th>Fecha y Hora</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="reserva : ${reservas}">
+                <td th:text="${reserva.nombreCliente}"></td>
+                <td th:text="${reserva.cantidadPersonas}"></td>
+                <td th:text="${reserva.fechaHora}"></td>
+                <td>
+                    <!-- Botón Editar -->
+                    <button class="btn btn-warning btn-sm" data-bs-toggle="modal" th:attr="data-bs-target='#modalEditar__' + ${reserva.id}">Editar</button>
+                    <!-- Botón Eliminar -->
+                    <a href="#" class="btn btn-danger btn-sm" th:onclick="|confirmarEliminacion(event, '@{/reservas/eliminar/{id}(id=${reserva.id})}')|">Eliminar</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
-        <!-- Formulario para nueva reserva -->
-        <h2 class="mt-5">Nueva Reserva</h2>
-        <form method="post" action="/reservas">
-            <div class="mb-3">
-                <label for="nombreCliente" class="form-label">Cliente</label>
-                <input type="text" class="form-control" id="nombreCliente" name="nombreCliente" required />
+<!-- Modal Agregar -->
+<div class="modal fade" id="modalAgregar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form th:action="@{/reservas}" method="post" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Agregar Reserva</h5>
             </div>
-            <div class="mb-3">
-                <label for="cantidadPersonas" class="form-label">Personas</label>
-                <input type="number" class="form-control" id="cantidadPersonas" name="cantidadPersonas" required />
+            <div class="modal-body">
+                <input class="form-control mb-2" name="nombreCliente" placeholder="Nombre" required>
+                <input class="form-control mb-2" name="cantidadPersonas" type="number" placeholder="Cantidad de personas" required>
+                <input class="form-control mb-2" name="fechaHora" type="datetime-local" required>
             </div>
-            <div class="mb-3">
-                <label for="fechaHora" class="form-label">Fecha y Hora</label>
-                <input type="datetime-local" class="form-control" id="fechaHora" name="fechaHora" required />
-            </div>
-            <button type="submit" class="btn btn-primary">Guardar</button>
-            <div class="text-center">
-                <a href="/" class="btn btn-primary btn-lg">Inicio</a>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Guardar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
             </div>
         </form>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Modal Editar -->
+<div th:each="reserva : ${reservas}" th:id="'modalEditar__' + ${reserva.id}" class="modal fade" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form th:action="@{/reservas/editar}" method="post" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Reserva</h5>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="id" th:value="${reserva.id}">
+                <input class="form-control mb-2" name="nombreCliente" th:value="${reserva.nombreCliente}" required>
+                <input class="form-control mb-2" name="cantidadPersonas" type="number" th:value="${reserva.cantidadPersonas}" required>
+                <input class="form-control mb-2" name="fechaHora" type="datetime-local" th:value="${reserva.fechaHora}" required>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Actualizar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Eliminar con Confirmación -->
+<script type="text/javascript">
+    function confirmarEliminacion(event, url) {
+        event.preventDefault(); // Evita que el enlace navegue directamente
+        if (confirm("¿Desea eliminar esta reserva?")) {
+            window.location.href = url;
+        }
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
