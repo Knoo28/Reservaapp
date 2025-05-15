@@ -108,6 +108,10 @@
         </div>
     </div>
 
+    <form th:action="@{/logout}" method="post" style="display:inline;">
+<button type="submit" class="btn btn-danger">Cerrar sesión</button>
+</form>
+
     <!-- Eliminar con Confirmación -->
     <script type="text/javascript">
         function confirmarEliminacion(event, url) {
