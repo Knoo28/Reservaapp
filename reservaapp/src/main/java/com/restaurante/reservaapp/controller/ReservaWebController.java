@@ -1,5 +1,8 @@
 package com.restaurante.reservaapp.controller;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -52,4 +55,23 @@ public class ReservaWebController {
         }
         return "reservas"; // cargar vista de reservas con resultados de búsqueda
     }
+
+    // Buscar reserva por ID
+    @GetMapping("/buscarId")
+    public String buscarPorId(@RequestParam(required = false) Long id, Model model) {
+        if (id != null) {
+            Optional<Reserva> reserva = reservaService.buscarPorId(id);
+            if (reserva.isPresent()) {
+                model.addAttribute("reservas", List.of(reserva.get()));
+            } else {
+                model.addAttribute("message", "Reserva no encontrada");
+                model.addAttribute("reservas", reservaService.obtenerTodas());
+            }
+        } else {
+            model.addAttribute("reservas", reservaService.obtenerTodas());
+        }
+
+        return "reservas"; // Vista de reservas con el resultado de la búsqueda
+    }
+
 }
